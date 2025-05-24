@@ -1,0 +1,749 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Team Header Section with Team Colors -->
+<section class="py-5" style="background-color: {{ team.primary_color or '#343a40' }}; color: {{ team.secondary_color or 'white' }};">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center">
+                <img src="{{ team.logo_url or 'https://via.placeholder.com/200?text=' + team.short_name }}" 
+                     alt="{{ team.name }}" class="img-fluid" style="max-height: 200px;">
+            </div>
+            <div class="col-md-9">
+                <h1>{{ team.name }}</h1>
+                <div class="d-flex flex-wrap gap-3 mb-3">
+                    <div>
+                        <i class="fas fa-map-marker-alt"></i> {{ team.city }}
+                    </div>
+                    <div>
+                        <i class="fas fa-home"></i> {{ team.home_ground }}
+                    </div>
+                    <div>
+                        <i class="fas fa-trophy"></i> Championships: {{ team.championships_won }}
+                    </div>
+                </div>
+                <div class="d-flex gap-3 mt-3">
+                    <a href="#team-players" class="btn btn-outline-light">
+                        <i class="fas fa-users"></i> Players
+                    </a>
+                    <a href="#team-matches" class="btn btn-outline-light">
+                        <i class="fas fa-gamepad"></i> Matches
+                    </a>
+                    <a href="#team-info" class="btn btn-outline-light">
+                        <i class="fas fa-info-circle"></i> Team Info
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <!-- Team Overview -->
+    <section id="team-info" class="mb-5">
+        <h2 class="mb-4">Team Overview</h2>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header" style="background-color: {{ team.primary_color or '#343a40' }}; color: {{ team.secondary_color or 'white' }};">
+                        <h4 class="mb-0">About {{ team.name }}</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ team.name }} is one of the premier franchises in the Indian Premier League, based in {{ team.city }}. The team plays its home matches at {{ team.home_ground }} and has a passionate fan base across India and the world.</p>
+                        
+                        {% if team.championships_won > 0 %}
+                        <p>With {{ team.championships_won }} championship{% if team.championships_won > 1 %}s{% endif %} to their name, {{ team.short_name }} has established itself as one of the most successful teams in IPL history.</p>
+                        {% else %}
+                        <p>{{ team.short_name }} is hungry for their first IPL championship and continues to build a strong squad to achieve that goal.</p>
+                        {% endif %}
+                        
+                        <div class="mt-4">
+                            <h5>Team Colors</h5>
+                            <div class="d-flex gap-3 mt-2">
+                                <div class="d-flex flex-column align-items-center">
+                                    <div style="width: 50px; height: 50px; background-color: {{ team.primary_color or '#343a40' }}; border-radius: 5px;"></div>
+                                    <span class="mt-1">Primary</span>
+                                </div>
+                                <div class="d-flex flex-column align-items-center">
+                                    <div style="width: 50px; height: 50px; background-color: {{ team.secondary_color or '#ffffff' }}; border-radius: 5px; border: 1px solid #dee2e6;"></div>
+                                    <span class="mt-1">Secondary</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <!-- Team Management -->
+                <div class="card mb-4">
+                    <div class="card-header" style="background-color: {{ team.primary_color or '#343a40' }}; color: {{ team.secondary_color or 'white' }};">
+                        <h4 class="mb-0">Team Management</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if coach %}
+                        <div class="mb-3">
+                            <h5>Head Coach</h5>
+                            <p class="mb-1"><strong>{{ coach.name }}</strong></p>
+                            <p class="mb-1">Nationality: {{ coach.country }}</p>
+                            <p class="mb-0">Since: {{ coach.appointed_date.strftime('%Y') }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if owners %}
+                        <div>
+                            <h5>Owners</h5>
+                            <ul class="list-unstyled">
+                                {% for owner in owners %}
+                                <li class="mb-2">
+                                    <strong>{{ owner.owner_name }}</strong><br>
+                                    <small>{{ owner.company }}</small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Team Sponsors -->
+                {% if sponsors %}
+                <div class="card">
+                    <div class="card-header" style="background-color: {{ team.primary_color or '#343a40' }}; color: {{ team.secondary_color or 'white' }};">
+                        <h4 class="mb-0">Team Sponsors</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for sponsor in sponsors %}
+                            <div class="col-6 text-center mb-3">
+                                <img src="{{ sponsor.logo_url or 'https://via.placeholder.com/100x50?text=' + sponsor.sponsor_name }}" 
+                                     alt="{{ sponsor.sponsor_name }}" class="img-fluid sponsor-logo" style="max-height: 40px;">
+                                <p class="mb-0 mt-1"><small>{{ sponsor.sponsor_name }}</small></p>
+                                <span class="badge bg-secondary">{{ sponsor.sponsor_type }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    
+    <!-- Team Players -->
+    <section id="team-players" class="mb-5">
+        <h2 class="mb-4">Squad</h2>
+        
+        <!-- Role-based tabs -->
+        <ul class="nav nav-tabs" id="playerRoleTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-players" type="button" role="tab" aria-controls="all-players" aria-selected="true">All Players</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="batsmen-tab" data-bs-toggle="tab" data-bs-target="#batsmen" type="button" role="tab" aria-controls="batsmen" aria-selected="false">Batsmen</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="bowlers-tab" data-bs-toggle="tab" data-bs-target="#bowlers" type="button" role="tab" aria-controls="bowlers" aria-selected="false">Bowlers</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="all-rounders-tab" data-bs-toggle="tab" data-bs-target="#all-rounders" type="button" role="tab" aria-controls="all-rounders" aria-selected="false">All-Rounders</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="wicket-keepers-tab" data-bs-toggle="tab" data-bs-target="#wicket-keepers" type="button" role="tab" aria-controls="wicket-keepers" aria-selected="false">Wicket-Keepers</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content mt-4" id="playerRoleTabContent">
+            <!-- All Players Tab -->
+            <div class="tab-pane fade show active" id="all-players" role="tabpanel" aria-labelledby="all-tab">
+                <div class="row">
+                    {% for player in players %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card player-card">
+                            <div class="position-relative">
+                                <span class="player-role">{{ player.role }}</span>
+                                <img src="{{ player.image_url or 'https://via.placeholder.com/300x200?text=' + player.name }}" 
+                                     alt="{{ player.name }}" class="card-img-top player-image">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ player.name }}</h5>
+                                <div class="d-flex justify-content-between">
+                                    <span>
+                                        <i class="fas fa-flag"></i> {{ player.country }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-tshirt"></i> {{ player.jersey_number or 'N/A' }}
+                                    </span>
+                                </div>
+                                <p class="card-text mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-baseball-ball"></i> {{ player.batting_style or 'N/A' }} 
+                                        {% if player.bowling_style %}
+                                        | <i class="fas fa-bowling-ball"></i> {{ player.bowling_style }}
+                                        {% endif %}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{{ url_for('player_details', player_id=player.id) }}" class="btn btn-primary w-100">
+                                    <i class="fas fa-info-circle"></i> Player Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Batsmen Tab -->
+            <div class="tab-pane fade" id="batsmen" role="tabpanel" aria-labelledby="batsmen-tab">
+                <div class="row">
+                    {% for player in players if player.role == 'Batsman' %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card player-card">
+                            <div class="position-relative">
+                                <span class="player-role">{{ player.role }}</span>
+                                <img src="{{ player.image_url or 'https://via.placeholder.com/300x200?text=' + player.name }}" 
+                                     alt="{{ player.name }}" class="card-img-top player-image">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ player.name }}</h5>
+                                <div class="d-flex justify-content-between">
+                                    <span>
+                                        <i class="fas fa-flag"></i> {{ player.country }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-tshirt"></i> {{ player.jersey_number or 'N/A' }}
+                                    </span>
+                                </div>
+                                <p class="card-text mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-baseball-ball"></i> {{ player.batting_style or 'N/A' }}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{{ url_for('player_details', player_id=player.id) }}" class="btn btn-primary w-100">
+                                    <i class="fas fa-info-circle"></i> Player Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">No batsmen in the team at the moment.</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Bowlers Tab -->
+            <div class="tab-pane fade" id="bowlers" role="tabpanel" aria-labelledby="bowlers-tab">
+                <div class="row">
+                    {% for player in players if player.role == 'Bowler' %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card player-card">
+                            <div class="position-relative">
+                                <span class="player-role">{{ player.role }}</span>
+                                <img src="{{ player.image_url or 'https://via.placeholder.com/300x200?text=' + player.name }}" 
+                                     alt="{{ player.name }}" class="card-img-top player-image">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ player.name }}</h5>
+                                <div class="d-flex justify-content-between">
+                                    <span>
+                                        <i class="fas fa-flag"></i> {{ player.country }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-tshirt"></i> {{ player.jersey_number or 'N/A' }}
+                                    </span>
+                                </div>
+                                <p class="card-text mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-bowling-ball"></i> {{ player.bowling_style or 'N/A' }}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{{ url_for('player_details', player_id=player.id) }}" class="btn btn-primary w-100">
+                                    <i class="fas fa-info-circle"></i> Player Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">No bowlers in the team at the moment.</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- All-Rounders Tab -->
+            <div class="tab-pane fade" id="all-rounders" role="tabpanel" aria-labelledby="all-rounders-tab">
+                <div class="row">
+                    {% for player in players if player.role == 'All-rounder' %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card player-card">
+                            <div class="position-relative">
+                                <span class="player-role">{{ player.role }}</span>
+                                <img src="{{ player.image_url or 'https://via.placeholder.com/300x200?text=' + player.name }}" 
+                                     alt="{{ player.name }}" class="card-img-top player-image">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ player.name }}</h5>
+                                <div class="d-flex justify-content-between">
+                                    <span>
+                                        <i class="fas fa-flag"></i> {{ player.country }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-tshirt"></i> {{ player.jersey_number or 'N/A' }}
+                                    </span>
+                                </div>
+                                <p class="card-text mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-baseball-ball"></i> {{ player.batting_style or 'N/A' }} 
+                                        {% if player.bowling_style %}
+                                        | <i class="fas fa-bowling-ball"></i> {{ player.bowling_style }}
+                                        {% endif %}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{{ url_for('player_details', player_id=player.id) }}" class="btn btn-primary w-100">
+                                    <i class="fas fa-info-circle"></i> Player Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">No all-rounders in the team at the moment.</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Wicket-Keepers Tab -->
+            <div class="tab-pane fade" id="wicket-keepers" role="tabpanel" aria-labelledby="wicket-keepers-tab">
+                <div class="row">
+                    {% for player in players if player.role == 'Wicket-keeper' %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card player-card">
+                            <div class="position-relative">
+                                <span class="player-role">{{ player.role }}</span>
+                                <img src="{{ player.image_url or 'https://via.placeholder.com/300x200?text=' + player.name }}" 
+                                     alt="{{ player.name }}" class="card-img-top player-image">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ player.name }}</h5>
+                                <div class="d-flex justify-content-between">
+                                    <span>
+                                        <i class="fas fa-flag"></i> {{ player.country }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-tshirt"></i> {{ player.jersey_number or 'N/A' }}
+                                    </span>
+                                </div>
+                                <p class="card-text mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-baseball-ball"></i> {{ player.batting_style or 'N/A' }}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{{ url_for('player_details', player_id=player.id) }}" class="btn btn-primary w-100">
+                                    <i class="fas fa-info-circle"></i> Player Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">No wicket-keepers in the team at the moment.</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Team Matches -->
+    <section id="team-matches" class="mb-5">
+        <h2 class="mb-4">Team Matches</h2>
+        
+        <!-- Upcoming Matches -->
+        <h4 class="mb-3">Upcoming Matches</h4>
+        {% if upcoming_matches %}
+        <div class="row">
+            {% for match in upcoming_matches %}
+            <div class="col-md-6 mb-4">
+                <div class="card match-card">
+                    <div class="card-header position-relative">
+                        <span class="match-status status-{{ match.status.lower() }}">{{ match.status }}</span>
+                        <h5 class="card-title mb-0">{{ match.match_type }} Match</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center text-center">
+                            <div class="col-5">
+                                <img src="{{ match.home_team.logo_url or 'https://via.placeholder.com/80?text=' + match.home_team.short_name }}" 
+                                     alt="{{ match.home_team.name }}" class="img-fluid" style="max-height: 80px;">
+                                <h6 class="mt-2">{{ match.home_team.name }}</h6>
+                            </div>
+                            <div class="col-2">
+                                <span class="vs">VS</span>
+                            </div>
+                            <div class="col-5">
+                                <img src="{{ match.away_team.logo_url or 'https://via.placeholder.com/80?text=' + match.away_team.short_name }}" 
+                                     alt="{{ match.away_team.name }}" class="img-fluid" style="max-height: 80px;">
+                                <h6 class="mt-2">{{ match.away_team.name }}</h6>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <p class="mb-1">
+                                <i class="fas fa-calendar-alt"></i> {{ match.match_date.strftime('%d %b, %Y') }}
+                            </p>
+                            <p class="mb-1">
+                                <i class="fas fa-clock"></i> {{ match.match_date.strftime('%I:%M %p') }}
+                            </p>
+                            <p class="mb-1">
+                                <i class="fas fa-map-marker-alt"></i> {{ match.stadium.name }}, {{ match.stadium.city }}
+                            </p>
+                            <div class="mt-2">
+                                <p class="mb-0">Match starts in: 
+                                    <span class="match-countdown" data-match-time="{{ match.match_date }}">
+                                        Loading...
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('match_details', match_id=match.id) }}" class="btn btn-primary w-100">
+                            <i class="fas fa-info-circle"></i> Match Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info mb-4">No upcoming matches scheduled for {{ team.name }}.</div>
+        {% endif %}
+        
+        <!-- Recent Results -->
+        <h4 class="mb-3">Recent Results</h4>
+        {% if recent_matches %}
+        <div class="row">
+            {% for match in recent_matches %}
+            <div class="col-md-6 mb-4">
+                <div class="card match-card">
+                    <div class="card-header position-relative">
+                        <span class="match-status status-{{ match.status.lower() }}">{{ match.status }}</span>
+                        <h5 class="card-title mb-0">{{ match.match_type }} Match</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center text-center">
+                            <div class="col-5">
+                                <img src="{{ match.home_team.logo_url or 'https://via.placeholder.com/80?text=' + match.home_team.short_name }}" 
+                                     alt="{{ match.home_team.name }}" class="img-fluid" style="max-height: 80px;">
+                                <h6 class="mt-2">{{ match.home_team.name }}</h6>
+                                {% if match.home_team_score %}
+                                <h5 class="mt-1">{{ match.home_team_score }}</h5>
+                                {% endif %}
+                            </div>
+                            <div class="col-2">
+                                <span class="vs">VS</span>
+                            </div>
+                            <div class="col-5">
+                                <img src="{{ match.away_team.logo_url or 'https://via.placeholder.com/80?text=' + match.away_team.short_name }}" 
+                                     alt="{{ match.away_team.name }}" class="img-fluid" style="max-height: 80px;">
+                                <h6 class="mt-2">{{ match.away_team.name }}</h6>
+                                {% if match.away_team_score %}
+                                <h5 class="mt-1">{{ match.away_team_score }}</h5>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <p class="mb-1">
+                                <i class="fas fa-calendar-alt"></i> {{ match.match_date.strftime('%d %b, %Y') }}
+                            </p>
+                            <p class="mb-1">
+                                <i class="fas fa-map-marker-alt"></i> {{ match.stadium.name }}, {{ match.stadium.city }}
+                            </p>
+                            {% if match.winner %}
+                            <p class="mb-0 mt-2 fw-bold">
+                                Winner: {{ match.winner.name }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('match_details', match_id=match.id) }}" class="btn btn-primary w-100">
+                            <i class="fas fa-info-circle"></i> Match Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">No recent match results available for {{ team.name }}.</div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+
+teams.html
+
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1>IPL Teams</h1>
+        <p class="lead">Explore all the teams participating in the Indian Premier League</p>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Teams Listing -->
+    <section class="my-5">
+        <div class="row">
+            {% for team in teams %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card team-card" 
+                     data-primary-color="{{ team.primary_color }}" 
+                     data-secondary-color="{{ team.secondary_color }}">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">{{ team.name }}</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="{{ team.logo_url or 'https://via.placeholder.com/150?text=' + team.short_name }}" 
+                             alt="{{ team.name }}" class="team-logo img-fluid">
+                        <div class="mt-3">
+                            <p class="mb-1">
+                                <i class="fas fa-map-marker-alt"></i> {{ team.city }}
+                            </p>
+                            <p class="mb-1">
+                                <i class="fas fa-home"></i> {{ team.home_ground }}
+                            </p>
+                            <p class="mb-0">
+                                <i class="fas fa-trophy"></i> Championships: {{ team.championships_won }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{{ url_for('team_details', team_id=team.id) }}" class="btn btn-primary">
+                            <i class="fas fa-info-circle"></i> Team Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+tickets.html
+
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1>IPL Match Tickets</h1>
+        <p class="lead">Book your tickets for upcoming Indian Premier League matches</p>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Ticket Booking Information -->
+    <section class="my-4">
+        <div class="alert alert-info">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle fa-2x me-3"></i>
+                <div>
+                    <h5 class="mb-1">Ticket Booking Information</h5>
+                    <p class="mb-0">View available tickets for upcoming matches. Ticket sales typically open 2 weeks before the match date. Make sure to book early as seats are limited!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Available Tickets -->
+    <section class="my-5">
+        <h2 class="mb-4">Upcoming Matches with Available Tickets</h2>
+        
+        {% if upcoming_matches and match_tickets %}
+            <div class="row">
+                {% for match in upcoming_matches %}
+                    {% if match.id in match_tickets %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card ticket-card">
+                                <div class="card-header position-relative">
+                                    <span class="match-status status-{{ match.status.lower() }}">{{ match.status }}</span>
+                                    <h5 class="card-title mb-0">{{ match.match_type }} Match</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row align-items-center text-center mb-3">
+                                        <div class="col-5">
+                                            <img src="{{ match.home_team.logo_url or 'https://via.placeholder.com/80?text=' + match.home_team.short_name }}" 
+                                                 alt="{{ match.home_team.name }}" class="img-fluid" style="max-height: 80px;">
+                                            <h6 class="mt-2">{{ match.home_team.name }}</h6>
+                                        </div>
+                                        <div class="col-2">
+                                            <span class="vs">VS</span>
+                                        </div>
+                                        <div class="col-5">
+                                            <img src="{{ match.away_team.logo_url or 'https://via.placeholder.com/80?text=' + match.away_team.short_name }}" 
+                                                 alt="{{ match.away_team.name }}" class="img-fluid" style="max-height: 80px;">
+                                            <h6 class="mt-2">{{ match.away_team.name }}</h6>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="mb-1">
+                                            <i class="fas fa-calendar-alt"></i> {{ match.match_date.strftime('%d %b, %Y') }}
+                                        </p>
+                                        <p class="mb-1">
+                                            <i class="fas fa-clock"></i> {{ match.match_date.strftime('%I:%M %p') }}
+                                        </p>
+                                        <p class="mb-1">
+                                            <i class="fas fa-map-marker-alt"></i> {{ match.stadium.name }}, {{ match.stadium.city }}
+                                        </p>
+                                        <div class="mt-3">
+                                            <p class="mb-0">Match starts in: 
+                                                <span class="match-countdown" data-match-time="{{ match.match_date }}">
+                                                    Loading...
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Category</th>
+                                                    <th>Price</th>
+                                                    <th>Available</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for ticket in match_tickets[match.id] %}
+                                                <tr>
+                                                    <td>
+                                                        <span class="badge badge-{{ ticket.category.lower() }}">{{ ticket.category }}</span>
+                                                    </td>
+                                                    <td>₹{{ ticket.price|int }}</td>
+                                                    <td>{{ ticket.total_available - ticket.sold }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="card-body text-center border-top">
+                                    <a href="{{ url_for('match_details', match_id=match.id) }}" class="btn btn-primary">
+                                        <i class="fas fa-ticket-alt"></i> View Ticket Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <h5>No tickets available for upcoming matches at the moment.</h5>
+                <p>Please check back later as tickets are typically released 2 weeks before the match date.</p>
+            </div>
+        {% endif %}
+    </section>
+    
+    <!-- Ticket Booking Steps -->
+    <section class="my-5">
+        <h2 class="mb-4">How to Book Tickets</h2>
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="display-4 mb-3 text-primary">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h5 class="card-title">Step 1</h5>
+                        <p class="card-text">Browse through the available matches and select the one you wish to attend.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="display-4 mb-3 text-primary">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <h5 class="card-title">Step 2</h5>
+                        <p class="card-text">Choose your preferred ticket category (VIP, Premium, or Standard).</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="display-4 mb-3 text-primary">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <h5 class="card-title">Step 3</h5>
+                        <p class="card-text">Complete the payment process using your preferred payment method.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="display-4 mb-3 text-primary">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h5 class="card-title">Step 4</h5>
+                        <p class="card-text">Receive your e-ticket via email. Show it at the venue for entry.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Ticket Policies -->
+    <section class="my-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Ticket Policies</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-exchange-alt"></i> Refund Policy</h5>
+                        <ul>
+                            <li>Tickets once booked cannot be exchanged or refunded.</li>
+                            <li>In case of match cancellation, full refund will be processed automatically.</li>
+                            <li>If match is rescheduled, tickets remain valid for the new date and time.</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-user-shield"></i> Entry Requirements</h5>
+                        <ul>
+                            <li>Each ticket holder must carry a valid ID proof along with their ticket.</li>
+                            <li>Children above 3 years must have their own ticket.</li>
+                            <li>Outside food and beverages are not allowed in the stadium.</li>
+                            <li>Video cameras, professional cameras, and selfie sticks are prohibited.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
