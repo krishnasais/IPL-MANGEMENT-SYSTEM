@@ -1,0 +1,134 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1>IPL Players</h1>
+        <p class="lead">Explore all the players participating in the Indian Premier League</p>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Filter Section -->
+    <section class="my-4">
+        <div class="card">
+            <div class="card-body">
+                <form id="playerFilterForm" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Team</label>
+                        <select class="form-select" id="teamFilter">
+                            <option value="all" selected>All Teams</option>
+                            {% for team in players|map(attribute='team')|unique %}
+                            <option value="{{ team.id }}">{{ team.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" id="roleFilter">
+                            <option value="all" selected>All Roles</option>
+                            <option value="Batsman">Batsman</option>
+                            <option value="Bowler">Bowler</option>
+                            <option value="All-rounder">All-rounder</option>
+                            <option value="Wicket-keeper">Wicket-keeper</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Country</label>
+                        <select class="form-select" id="countryFilter">
+                            <option value="all" selected>All Countries</option>
+                            {% for country in players|map(attribute='country')|unique %}
+                            <option value="{{ country }}">{{ country }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Players Listing -->
+    <section class="my-5">
+        <div class="row" id="playersContainer">
+            {% for player in players %}
+            <div class="col-md-6 col-lg-4 player-item" 
+                 data-team="{{ player.team_id }}" 
+                 data-role="{{ player.role }}" 
+                 data-country="{{ player.country }}">
+                <div class="card player-card">
+                    <div class="position-relative">
+                        <span class="player-role">{{ player.role }}</span>
+                        <img src="{{ player.image_url or 'https://via.placeholder.com/300x200?text=' + player.name }}" 
+                             alt="{{ player.name }}" class="card-img-top player-image">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ player.name }}</h5>
+                        <div class="d-flex justify-content-between">
+                            <span>
+                                <i class="fas fa-flag"></i> {{ player.country }}
+                            </span>
+                            <span>
+                                <i class="fas fa-tshirt"></i> {{ player.jersey_number or 'N/A' }}
+                            </span>
+                        </div>
+                        <p class="card-text mt-2">
+                            <span class="badge {{ player.team.short_name.lower() }}-color">{{ player.team.short_name }}</span>
+                            {{ player.team.name }}
+                        </p>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="fas fa-baseball-ball"></i> {{ player.batting_style or 'N/A' }} 
+                                {% if player.bowling_style %}
+                                | <i class="fas fa-bowling-ball"></i> {{ player.bowling_style }}
+                                {% endif %}
+                            </small>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('player_details', player_id=player.id) }}" class="btn btn-primary w-100">
+                            <i class="fas fa-info-circle"></i> Player Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Player filtering
+        const teamFilter = document.getElementById('teamFilter');
+        const roleFilter = document.getElementById('roleFilter');
+        const countryFilter = document.getElementById('countryFilter');
+        const playersContainer = document.getElementById('playersContainer');
+        
+        function applyFilters() {
+            const teamValue = teamFilter.value;
+            const roleValue = roleFilter.value;
+            const countryValue = countryFilter.value;
+            
+            const playerItems = document.querySelectorAll('.player-item');
+            
+            playerItems.forEach(item => {
+                const teamMatch = teamValue === 'all' || item.getAttribute('data-team') === teamValue;
+                const roleMatch = roleValue === 'all' || item.getAttribute('data-role') === roleValue;
+                const countryMatch = countryValue === 'all' || item.getAttribute('data-country') === countryValue;
+                
+                if (teamMatch && roleMatch && countryMatch) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        // Add event listeners
+        teamFilter.addEventListener('change', applyFilters);
+        roleFilter.addEventListener('change', applyFilters);
+        countryFilter.addEventListener('change', applyFilters);
+    });
+</script>
+{% endblock %}
