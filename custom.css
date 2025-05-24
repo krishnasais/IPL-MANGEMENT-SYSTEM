@@ -1,0 +1,291 @@
+/* Custom styles for IPL Management System */
+
+/* Team colors for the main teams */
+.mi-color {
+    background-color: #004BA0 !important;
+    color: white !important;
+}
+
+.csk-color {
+    background-color: #F9CD05 !important;
+    color: black !important;
+}
+
+.rcb-color {
+    background-color: #EC1C24 !important;
+    color: white !important;
+}
+
+.kkr-color {
+    background-color: #3A225D !important;
+    color: white !important;
+}
+
+.dc-color {
+    background-color: #00008B !important;
+    color: white !important;
+}
+
+.srh-color {
+    background-color: #FF822A !important;
+    color: black !important;
+}
+
+.rr-color {
+    background-color: #254AA5 !important;
+    color: white !important;
+}
+
+.pbks-color {
+    background-color: #ED1B24 !important;
+    color: white !important;
+}
+
+/* Orange Cap */
+.orange-cap-badge {
+    background-color: #FFA500;
+    color: black;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+}
+
+/* Purple Cap */
+.purple-cap-badge {
+    background-color: #800080;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+}
+
+/* Hero section */
+.hero-section {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://www.iplt20.com/assets/images/visuals/purple-pattern.svg');
+    background-size: cover;
+    background-position: center;
+    padding: 5rem 0;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+/* Match card styling */
+.match-card {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    transition: transform 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.match-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.match-card .vs {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--bs-gray);
+}
+
+.match-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.status-scheduled {
+    background-color: var(--bs-info);
+    color: white;
+}
+
+.status-live {
+    background-color: var(--bs-danger);
+    color: white;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% {opacity: 1;}
+    50% {opacity: 0.5;}
+    100% {opacity: 1;}
+}
+
+.status-completed {
+    background-color: var(--bs-success);
+    color: white;
+}
+
+.status-cancelled {
+    background-color: var(--bs-secondary);
+    color: white;
+}
+
+/* Team card styling */
+.team-card {
+    border: 3px solid transparent;
+    transition: transform 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.team-logo {
+    max-height: 120px;
+    object-fit: contain;
+    margin: 1rem auto;
+}
+
+/* Player card styling */
+.player-card {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    transition: transform 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.player-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.player-image {
+    max-height: 200px;
+    object-fit: cover;
+}
+
+.player-role {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+/* Ticket card styling */
+.ticket-card {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    transition: transform 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.ticket-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Stats table styling */
+.stats-table th {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 3rem 0;
+    }
+    
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    
+    .match-card .vs {
+        font-size: 1.2rem;
+    }
+    
+    .team-logo {
+        max-height: 80px;
+    }
+}
+
+/* Admin panel styles */
+.admin-card {
+    border-left: 5px solid var(--bs-primary);
+}
+
+.admin-nav {
+    background-color: var(--bs-dark);
+}
+
+.admin-nav .nav-link {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.admin-nav .nav-link:hover,
+.admin-nav .nav-link.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Footer styling */
+.footer {
+    background-color: var(--bs-dark);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+.footer a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: white;
+}
+
+/* Custom badge styles */
+.badge-vip {
+    background-color: #D4AF37;
+    color: black;
+}
+
+.badge-premium {
+    background-color: #CD7F32;
+    color: white;
+}
+
+.badge-standard {
+    background-color: #C0C0C0;
+    color: black;
+}
+
+/* Match countdown timer */
+.match-countdown {
+    font-weight: bold;
+    color: var(--bs-danger);
+}
+
+/* Sponsor logos */
+.sponsor-logo {
+    max-height: 80px;
+    object-fit: contain;
+    margin: 0.5rem 0;
+    filter: grayscale(0.5);
+    transition: filter 0.3s ease;
+}
+
+.sponsor-logo:hover {
+    filter: grayscale(0);
+}
+
+/* Custom breadcrumb styling */
+.custom-breadcrumb {
+    background-color: transparent;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+}
+
+.custom-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+}
