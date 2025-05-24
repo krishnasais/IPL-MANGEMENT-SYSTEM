@@ -1,0 +1,1186 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1>Welcome to the IPL Management System</h1>
+        <p class="lead">Your ultimate destination for IPL stats, teams, players and matches</p>
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <a href="{{ url_for('matches') }}" class="btn btn-primary">
+                <i class="fas fa-gamepad"></i> View Matches
+            </a>
+            <a href="{{ url_for('teams') }}" class="btn btn-outline-light">
+                <i class="fas fa-users"></i> Teams
+            </a>
+            <a href="{{ url_for('stats') }}" class="btn btn-outline-light">
+                <i class="fas fa-chart-bar"></i> Stats
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Upcoming Matches -->
+    <section class="mb-5">
+        <h2 class="mb-4">Upcoming Matches</h2>
+        {% if upcoming_matches %}
+            <div class="row">
+                {% for match in upcoming_matches %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card match-card">
+                        <div class="card-header position-relative">
+                            <span class="match-status status-{{ match.status.lower() }}">{{ match.status }}</span>
+                            <h5 class="card-title mb-0">{{ match.match_type }} Match</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-center text-center">
+                                <div class="col-5">
+                                    <img src="{{ match.home_team.logo_url or 'https://via.placeholder.com/80?text=' + match.home_team.short_name }}" 
+                                         alt="{{ match.home_team.name }}" class="img-fluid" style="max-height: 80px;">
+                                    <h6 class="mt-2">{{ match.home_team.name }}</h6>
+                                </div>
+                                <div class="col-2">
+                                    <span class="vs">VS</span>
+                                </div>
+                                <div class="col-5">
+                                    <img src="{{ match.away_team.logo_url or 'https://via.placeholder.com/80?text=' + match.away_team.short_name }}" 
+                                         alt="{{ match.away_team.name }}" class="img-fluid" style="max-height: 80px;">
+                                    <h6 class="mt-2">{{ match.away_team.name }}</h6>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar-alt"></i> {{ match.match_date.strftime('%d %b, %Y') }}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-clock"></i> {{ match.match_date.strftime('%I:%M %p') }}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-map-marker-alt"></i> {{ match.stadium.name }}, {{ match.stadium.city }}
+                                </p>
+                                <div class="mt-2">
+                                    <p class="mb-0">Match starts in: 
+                                        <span class="match-countdown" data-match-time="{{ match.match_date }}">
+                                            Loading...
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ url_for('match_details', match_id=match.id) }}" class="btn btn-primary w-100">
+                                <i class="fas fa-info-circle"></i> Match Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No upcoming matches scheduled at the moment.
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Recent Results -->
+    <section class="mb-5">
+        <h2 class="mb-4">Recent Results</h2>
+        {% if recent_matches %}
+            <div class="row">
+                {% for match in recent_matches %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card match-card">
+                        <div class="card-header position-relative">
+                            <span class="match-status status-{{ match.status.lower() }}">{{ match.status }}</span>
+                            <h5 class="card-title mb-0">{{ match.match_type }} Match</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-center text-center">
+                                <div class="col-5">
+                                    <img src="{{ match.home_team.logo_url or 'https://via.placeholder.com/80?text=' + match.home_team.short_name }}" 
+                                         alt="{{ match.home_team.name }}" class="img-fluid" style="max-height: 80px;">
+                                    <h6 class="mt-2">{{ match.home_team.name }}</h6>
+                                    {% if match.home_team_score %}
+                                    <h5 class="mt-1">{{ match.home_team_score }}</h5>
+                                    {% endif %}
+                                </div>
+                                <div class="col-2">
+                                    <span class="vs">VS</span>
+                                </div>
+                                <div class="col-5">
+                                    <img src="{{ match.away_team.logo_url or 'https://via.placeholder.com/80?text=' + match.away_team.short_name }}" 
+                                         alt="{{ match.away_team.name }}" class="img-fluid" style="max-height: 80px;">
+                                    <h6 class="mt-2">{{ match.away_team.name }}</h6>
+                                    {% if match.away_team_score %}
+                                    <h5 class="mt-1">{{ match.away_team_score }}</h5>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar-alt"></i> {{ match.match_date.strftime('%d %b, %Y') }}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-map-marker-alt"></i> {{ match.stadium.name }}, {{ match.stadium.city }}
+                                </p>
+                                {% if match.winner %}
+                                <p class="mb-0 mt-2">
+                                    <strong>Winner: {{ match.winner.name }}</strong>
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ url_for('match_details', match_id=match.id) }}" class="btn btn-primary w-100">
+                                <i class="fas fa-info-circle"></i> Match Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No recent match results available.
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Points Table and Stats Section -->
+    <div class="row">
+        <!-- Points Table -->
+        <div class="col-md-6">
+            <section class="mb-5">
+                <h2 class="mb-4">Team Standings</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Rank</th>
+                                <th>Team</th>
+                                <th>Championships</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for team in teams %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>
+                                    <a href="{{ url_for('team_details', team_id=team.id) }}" class="text-decoration-none">
+                                        {{ team.name }}
+                                    </a>
+                                </td>
+                                <td>{{ team.championships_won }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- Stats Leaders -->
+        <div class="col-md-6">
+            <section class="mb-5">
+                <h2 class="mb-4">Top Performers</h2>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><span class="orange-cap-badge"><i class="fas fa-trophy"></i> Orange Cap</span> Top Run Scorers</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Player</th>
+                                        <th>Team</th>
+                                        <th>Runs</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cap in orange_cap %}
+                                    <tr>
+                                        <td>{{ cap.rank }}</td>
+                                        <td>
+                                            <a href="{{ url_for('player_details', player_id=cap.player_id) }}" class="text-decoration-none">
+                                                {{ cap.player.name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ cap.player.team.short_name }}</td>
+                                        <td>{{ cap.runs }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><span class="purple-cap-badge"><i class="fas fa-trophy"></i> Purple Cap</span> Top Wicket Takers</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Player</th>
+                                        <th>Team</th>
+                                        <th>Wickets</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cap in purple_cap %}
+                                    <tr>
+                                        <td>{{ cap.rank }}</td>
+                                        <td>
+                                            <a href="{{ url_for('player_details', player_id=cap.player_id) }}" class="text-decoration-none">
+                                                {{ cap.player.name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ cap.player.team.short_name }}</td>
+                                        <td>{{ cap.wickets }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+layout.html
+
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPL Management System</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-trophy"></i> IPL Management System
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('teams') }}">
+                            <i class="fas fa-users"></i> Teams
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('players') }}">
+                            <i class="fas fa-user-alt"></i> Players
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('matches') }}">
+                            <i class="fas fa-gamepad"></i> Matches
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('stats') }}">
+                            <i class="fas fa-chart-bar"></i> Stats
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('tickets') }}">
+                            <i class="fas fa-ticket-alt"></i> Tickets
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('sponsors') }}">
+                            <i class="fas fa-handshake"></i> Sponsors
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_index') }}">
+                            <i class="fas fa-tools"></i> Admin
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>IPL Management System</h5>
+                    <p>A comprehensive system for managing the Indian Premier League cricket tournament, teams, players, and statistics.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('teams') }}">Teams</a></li>
+                        <li><a href="{{ url_for('players') }}">Players</a></li>
+                        <li><a href="{{ url_for('matches') }}">Matches</a></li>
+                        <li><a href="{{ url_for('stats') }}">Stats</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Connect With Us</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-decoration-none">
+                            <i class="fab fa-facebook fa-2x"></i>
+                        </a>
+                        <a href="#" class="text-decoration-none">
+                            <i class="fab fa-twitter fa-2x"></i>
+                        </a>
+                        <a href="#" class="text-decoration-none">
+                            <i class="fab fa-instagram fa-2x"></i>
+                        </a>
+                        <a href="#" class="text-decoration-none">
+                            <i class="fab fa-youtube fa-2x"></i>
+                        </a>
+                    </div>
+                    <div class="mt-3">
+                        <p>© 2023 IPL Management System. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
+
+match_details.html
+
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Match Header Section -->
+<section class="py-5" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://www.iplt20.com/assets/images/visuals/purple-pattern.svg'); background-size: cover; color: white;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-12 text-center">
+                <div class="position-relative mb-4">
+                    <span class="match-status status-{{ match.status.lower() }} position-absolute top-0 start-50 translate-middle">
+                        {{ match.status }}
+                    </span>
+                </div>
+                
+                <h2 class="mb-3">{{ match.match_type }} Match</h2>
+                
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-5 col-md-4 text-end">
+                        <a href="{{ url_for('team_details', team_id=match.home_team_id) }}" class="text-decoration-none text-white">
+                            <div class="text-center">
+                                <img src="{{ match.home_team.logo_url or 'https://via.placeholder.com/150?text=' + match.home_team.short_name }}" 
+                                     alt="{{ match.home_team.name }}" class="img-fluid mb-2" style="max-height: 120px;">
+                                <h3>{{ match.home_team.name }}</h3>
+                                {% if match.home_team_score %}
+                                <h4 class="mt-2">{{ match.home_team_score }}</h4>
+                                {% endif %}
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-2 col-md-2">
+                        <div class="display-1 fw-bold">VS</div>
+                    </div>
+                    <div class="col-5 col-md-4 text-start">
+                        <a href="{{ url_for('team_details', team_id=match.away_team_id) }}" class="text-decoration-none text-white">
+                            <div class="text-center">
+                                <img src="{{ match.away_team.logo_url or 'https://via.placeholder.com/150?text=' + match.away_team.short_name }}" 
+                                     alt="{{ match.away_team.name }}" class="img-fluid mb-2" style="max-height: 120px;">
+                                <h3>{{ match.away_team.name }}</h3>
+                                {% if match.away_team_score %}
+                                <h4 class="mt-2">{{ match.away_team_score }}</h4>
+                                {% endif %}
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="d-flex justify-content-center gap-4 flex-wrap">
+                        <div>
+                            <i class="fas fa-calendar-alt"></i> {{ match.match_date.strftime('%d %B, %Y') }}
+                        </div>
+                        <div>
+                            <i class="fas fa-clock"></i> {{ match.match_date.strftime('%I:%M %p') }}
+                        </div>
+                        <div>
+                            <i class="fas fa-map-marker-alt"></i> {{ match.stadium.name }}, {{ match.stadium.city }}
+                        </div>
+                    </div>
+                    
+                    {% if match.status == 'Scheduled' %}
+                    <div class="mt-3">
+                        <p class="mb-0">Match starts in: 
+                            <span class="match-countdown" data-match-time="{{ match.match_date }}">
+                                Loading...
+                            </span>
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if match.status == 'Completed' and match.winner %}
+                    <div class="mt-3">
+                        <h4>
+                            <span class="badge bg-success">
+                                <i class="fas fa-trophy"></i> Winner: {{ match.winner.name }}
+                            </span>
+                        </h4>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Match Summary -->
+            <section class="mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">Match Summary</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if match.match_summary %}
+                        <p>{{ match.match_summary }}</p>
+                        {% elif match.status == 'Completed' %}
+                        <div class="alert alert-info">
+                            Match concluded between {{ match.home_team.name }} and {{ match.away_team.name }}. 
+                            {% if match.winner %}
+                            {{ match.winner.name }} emerged victorious in this {{ match.match_type }} match.
+                            {% endif %}
+                        </div>
+                        {% elif match.status == 'Live' %}
+                        <div class="alert alert-danger">
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-grow text-danger me-3" role="status" style="width: 1rem; height: 1rem;">
+                                    <span class="visually-hidden">Live...</span>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Match is currently in progress!</h5>
+                                    <p class="mb-0">Stay tuned for live updates between {{ match.home_team.name }} and {{ match.away_team.name }}.</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            The {{ match.match_type }} match between {{ match.home_team.name }} and {{ match.away_team.name }} 
+                            is scheduled to be held at {{ match.stadium.name }}, {{ match.stadium.city }} 
+                            on {{ match.match_date.strftime('%d %B, %Y') }} at {{ match.match_date.strftime('%I:%M %p') }}.
+                        </div>
+                        {% endif %}
+                        
+                        {% if match.status == 'Completed' and match.man_of_match %}
+                        <div class="card mt-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <img src="{{ match.man_of_match.image_url or 'https://via.placeholder.com/80?text=' + match.man_of_match.name }}" 
+                                             alt="{{ match.man_of_match.name }}" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-warning text-dark mb-2">Player of the Match</span>
+                                        <h4 class="mb-1">{{ match.man_of_match.name }}</h4>
+                                        <p class="mb-0">
+                                            {{ match.man_of_match.team.name }} | {{ match.man_of_match.role }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Match Scorecard (if match is live or completed) -->
+            {% if match.status in ['Live', 'Completed'] %}
+            <section class="mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">Scorecard</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="scorecardTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-team-innings" type="button" role="tab" aria-controls="home-team-innings" aria-selected="true">
+                                    {{ match.home_team.short_name }} Innings
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="away-tab" data-bs-toggle="tab" data-bs-target="#away-team-innings" type="button" role="tab" aria-controls="away-team-innings" aria-selected="false">
+                                    {{ match.away_team.short_name }} Innings
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content mt-3" id="scorecardTabContent">
+                            <div class="tab-pane fade show active" id="home-team-innings" role="tabpanel" aria-labelledby="home-tab">
+                                <div class="alert alert-info">
+                                    Detailed scorecard with batting and bowling statistics for {{ match.home_team.name }} would be displayed here.
+                                </div>
+                                
+                                {% if match.home_team_score %}
+                                <div class="text-center mb-3">
+                                    <h4>Total: {{ match.home_team_score }}</h4>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="tab-pane fade" id="away-team-innings" role="tabpanel" aria-labelledby="away-tab">
+                                <div class="alert alert-info">
+                                    Detailed scorecard with batting and bowling statistics for {{ match.away_team.name }} would be displayed here.
+                                </div>
+                                
+                                {% if match.away_team_score %}
+                                <div class="text-center mb-3">
+                                    <h4>Total: {{ match.away_team_score }}</h4>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+            
+            <!-- Match Statistics -->
+            {% if match.status == 'Completed' %}
+            <section class="mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">Match Statistics</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            Detailed match statistics including run rates, boundaries, extras, partnerships, and player performance charts would be displayed here.
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Venue Information -->
+            <section class="mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">Venue Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <img src="{{ match.stadium.image_url or 'https://via.placeholder.com/300x200?text=' + match.stadium.name }}" 
+                             alt="{{ match.stadium.name }}" class="img-fluid mb-3 rounded">
+                        <h4>{{ match.stadium.name }}</h4>
+                        <p class="mb-1">
+                            <i class="fas fa-map-marker-alt"></i> {{ match.stadium.city }}, {{ match.stadium.state }}
+                        </p>
+                        <p class="mb-1">
+                            <i class="fas fa-users"></i> Capacity: {{ match.stadium.capacity }} spectators
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-calendar-alt"></i> Established: {{ match.stadium.established_year }}
+                        </p>
+                        
+                        {% if match.stadium.description %}
+                        <div class="mt-3">
+                            <p>{{ match.stadium.description }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Available Tickets (if match is scheduled) -->
+            {% if match.status == 'Scheduled' and tickets %}
+            <section class="mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">Available Tickets</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Price</th>
+                                        <th>Available</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ticket in tickets %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge badge-{{ ticket.category.lower() }}">{{ ticket.category }}</span>
+                                        </td>
+                                        <td>₹{{ ticket.price|int }}</td>
+                                        <td>{{ ticket.total_available - ticket.sold }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3 text-center">
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-ticket-alt"></i> Book Tickets
+                            </a>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                Ticket sales end on {{ tickets[0].sale_end_date.strftime('%d %B, %Y') if tickets else 'match day' }}.
+                                Tickets are subject to availability.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+            
+            <!-- Head to Head Stats -->
+            <section class="mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">Head to Head</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="text-center mb-3">{{ match.home_team.short_name }} vs {{ match.away_team.short_name }}</h5>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <div class="display-6">5</div>
+                                <small class="text-muted">{{ match.home_team.short_name }} won</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="display-6">12</div>
+                                <small class="text-muted">Matches</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="display-6">7</div>
+                                <small class="text-muted">{{ match.away_team.short_name }} won</small>
+                            </div>
+                        </div>
+                        
+                        <div class="progress mb-4" style="height: 25px;">
+                            <div class="progress-bar" role="progressbar" style="width: 41.7%; background-color: {{ match.home_team.primary_color or 'var(--bs-primary)' }};" 
+                                 aria-valuenow="41.7" aria-valuemin="0" aria-valuemax="100">
+                                41.7%
+                            </div>
+                            <div class="progress-bar" role="progressbar" style="width: 58.3%; background-color: {{ match.away_team.primary_color or 'var(--bs-info)' }};" 
+                                 aria-valuenow="58.3" aria-valuemin="0" aria-valuemax="100">
+                                58.3%
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-light">
+                            <div class="d-flex justify-content-between">
+                                <span>Highest Total:</span>
+                                <span>239/5 by {{ match.home_team.short_name }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Lowest Total:</span>
+                                <span>87 by {{ match.away_team.short_name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Weather Forecast (if match is scheduled or live) -->
+            {% if match.status in ['Scheduled', 'Live'] %}
+            <section class="mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">Weather Forecast</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-center mb-3">
+                            <div class="me-3">
+                                <i class="fas fa-cloud-sun fa-3x"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">30°C / 86°F</h4>
+                                <p class="mb-0">Partly Cloudy</p>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <p class="mb-0"><small>Humidity: 65% | Wind: 12 km/h</small></p>
+                            <p class="mb-0"><small>Chance of Rain: 10%</small></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Key Moments (if match is completed) -->
+    {% if match.status == 'Completed' %}
+    <section class="mt-3 mb-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Key Moments</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    Timeline of key moments from the match, including wickets, boundaries, and milestones would be displayed here.
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+matches.html
+
+{% extends 'layout.html' %}  {% block content %} <!-- Hero Section --> <section class="hero-section">     <div class="container text-center">         <h1>IPL Matches</h1>         <p class="lead">Follow all the action from the Indian Premier League</p>     </div> </section>  <div class="container">     <!-- Filter Section -->     <section class="my-4">         <div class="card">             <div class="card-body">                 <div class="row g-3 align-items-center">                     <div class="col-md-4">                         <label for="matchFilterSelect" class="form-label">Filter by Status</label>                         <select class="form-select" id="matchFilterSelect">                             <option value="all" {% if current_filter == 'all' %}selected{% endif %}>All Matches</option>                             <option value="Scheduled" {% if current_filter == 'Scheduled' %}selected{% endif %}>Upcoming Matches</option>                             <option value="Live" {% if current_filter == 'Live' %}selected{% endif %}>Live Matches</option>                             <option value="Completed" {% if current_filter == 'Completed' %}selected{% endif %}>Completed Matches</option>                             <option value="Cancelled" {% if current_filter == 'Cancelled' %}selected{% endif %}>Cancelled Matches</option>                         </select>                     </div>                 </div>             </div>         </div>     </section>          <!-- Matches Listing -->     <section class="my-5">         <div class="row">             {% for match in matches %}             <div class="col-md-6 col-lg-4">                 <div class="card match-card {% if match.status == 'Live' %}live-match{% endif %}"                       data-match-status="{{ match.status }}"                      {% if match.home_team_score %}                      data-home-score="{{ match.home_team_score.split('/')[0] }}"                      data-home-wickets="{{ match.home_team_score.split('/')[1] if '/' in match.home_team_score else '0' }}"                      {% endif %}                      {% if match.away_team_score %}                      data-away-score="{{ match.away_team_score.split('/')[0] }}"                      data-away-wickets="{{ match.away_team_score.split('/')[1] if '/' in match.away_team_score else '0' }}"                      {% endif %}                     >                     <div class="card-header position-relative">                         <span class="match-status status-{{ match.status.lower() }}">{{ match.status }}</span>                         <h5 class="card-title mb-0">{{ match.match_type }} Match</h5>                     </div>                     <div class="card-body">                         <div class="row align-items-center text-center">                             <div class="col-5">                                 <img src="{{ match.home_team.logo_url or 'https://via.placeholder.com/80?text=' + match.home_team.short_name }}"                                       alt="{{ match.home_team.name }}" class="img-fluid" style="max-height: 80px;">                                 <h6 class="mt-2">{{ match.home_team.name }}</h6>                                 {% if match.home_team_score %}                                 <h5 class="mt-1 home-score">{{ match.home_team_score }}</h5>                                 {% endif %}                             </div>                             <div class="col-2">                                 <span class="vs">VS</span>                             </div>                             <div class="col-5">                                 <img src="{{ match.away_team.logo_url or 'https://via.placeholder.com/80?text=' + match.away_team.short_name }}"                                       alt="{{ match.away_team.name }}" class="img-fluid" style="max-height: 80px;">                                 <h6 class="mt-2">{{ match.away_team.name }}</h6>                                 {% if match.away_team_score %}                                 <h5 class="mt-1 away-score">{{ match.away_team_score }}</h5>                                 {% endif %}                             </div>                         </div>                         <div class="text-center mt-3">                             <p class="mb-1">                                 <i class="fas fa-calendar-alt"></i> {{ match.match_date.strftime('%d %b, %Y') }}                             </p>                             <p class="mb-1">                                 <i class="fas fa-clock"></i> {{ match.match_date.strftime('%I:%M %p') }}                             </p>                             <p class="mb-1">                                 <i class="fas fa-map-marker-alt"></i> {{ match.stadium.name }}, {{ match.stadium.city }}                             </p>                                                          {% if match.status == 'Scheduled' and match.match_date > now %}                             <div class="mt-2">                                 <p class="mb-0">Match starts in:                                      <span class="match-countdown" data-match-time="{{ match.match_date }}">                                         Loading...                                     </span>                                 </p>                             </div>                             {% endif %}                                                          {% if match.status == 'Completed' and match.winner %}                             <div class="mt-2">                                 <p class="mb-0 fw-bold">                                     Winner: {{ match.winner.name }}                                 </p>                                 {% if match.man_of_match %}                                 <p class="mb-0 mt-1">                                     <span class="badge bg-warning text-dark">                                         <i class="fas fa-trophy"></i> Man of the Match: {{ match.man_of_match.name }}                                     </span>                                 </p>                                 {% endif %}                             </div>                             {% endif %}                         </div>                     </div>                     <div class="card-footer d-flex justify-content-between">                         <a href="{{ url_for('match_details', match_id=match.id) }}" class="btn btn-primary flex-grow-1">                             <i class="fas fa-info-circle"></i> Match Details                         </a>                     </div>                 </div>             </div>             {% endfor %}         </div>                  {% if not matches %}         <div class="alert alert-info text-center my-5">             <h4>No matches found with the selected filter.</h4>             <p>Try selecting a different status or view all matches.</p>         </div>         {% endif %}     </section> </div> {% endblock %}
+
+player_details.html
+
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Player Header Section -->
+<section class="py-5" style="background-color: {{ player.team.primary_color or '#343a40' }}; color: {{ player.team.secondary_color or 'white' }};">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-4 text-center">
+                <img src="{{ player.image_url or 'https://via.placeholder.com/300x300?text=' + player.name }}" 
+                     alt="{{ player.name }}" class="img-fluid rounded" style="max-height: 300px;">
+            </div>
+            <div class="col-md-8">
+                <h1>{{ player.name }}</h1>
+                <div class="d-flex flex-wrap gap-3 mb-3">
+                    <div>
+                        <i class="fas fa-flag"></i> {{ player.country }}
+                    </div>
+                    <div>
+                        <i class="fas fa-tshirt"></i> {{ player.jersey_number or 'N/A' }}
+                    </div>
+                    <div>
+                        <i class="fas fa-user-alt"></i> {{ player.role }}
+                    </div>
+                    <div>
+                        <i class="fas fa-calendar-alt"></i> {{ player.date_of_birth.strftime('%d %b, %Y') }}
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center mb-3">
+                    <a href="{{ url_for('team_details', team_id=player.team_id) }}" class="text-decoration-none">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ player.team.logo_url or 'https://via.placeholder.com/40?text=' + player.team.short_name }}" 
+                                 alt="{{ player.team.name }}" class="me-2" style="max-height: 40px;">
+                            <span>{{ player.team.name }}</span>
+                        </div>
+                    </a>
+                </div>
+                
+                {% if orange_cap or purple_cap %}
+                <div class="d-flex gap-2 mb-3">
+                    {% if orange_cap %}
+                    <span class="orange-cap-badge">
+                        <i class="fas fa-trophy"></i> Orange Cap #{{ orange_cap.rank }}
+                    </span>
+                    {% endif %}
+                    
+                    {% if purple_cap %}
+                    <span class="purple-cap-badge">
+                        <i class="fas fa-trophy"></i> Purple Cap #{{ purple_cap.rank }}
+                    </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <div class="d-flex gap-3 mt-3">
+                    <a href="#player-stats" class="btn btn-outline-light">
+                        <i class="fas fa-chart-bar"></i> Statistics
+                    </a>
+                    <a href="#player-info" class="btn btn-outline-light">
+                        <i class="fas fa-info-circle"></i> Profile
+                    </a>
+                    {% if contract %}
+                    <a href="#player-contract" class="btn btn-outline-light">
+                        <i class="fas fa-file-contract"></i> Contract
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Player Statistics -->
+            <section id="player-stats" class="mb-5">
+                <div class="card">
+                    <div class="card-header" style="background-color: {{ player.team.primary_color or '#343a40' }}; color: {{ player.team.secondary_color or 'white' }};">
+                        <h3 class="mb-0">Player Statistics</h3>
+                    </div>
+                    {% if stats %}
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Career Summary -->
+                            <div class="col-12 mb-4">
+                                <h4>Career Summary</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover stats-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Matches</th>
+                                                <th>Runs</th>
+                                                <th>Wickets</th>
+                                                <th>Highest Score</th>
+                                                <th>Best Bowling</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{{ stats.matches_played }}</td>
+                                                <td>{{ stats.runs_scored }}</td>
+                                                <td>{{ stats.wickets_taken }}</td>
+                                                <td>{{ stats.highest_score }}</td>
+                                                <td>{{ stats.best_bowling_figures or 'N/A' }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Batting Stats -->
+                            <div class="col-md-6 mb-4">
+                                <h4>Batting Stats</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th>Batting Style</th>
+                                                <td>{{ player.batting_style or 'N/A' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Batting Average</th>
+                                                <td>{{ stats.batting_average }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Strike Rate</th>
+                                                <td>{{ stats.strike_rate }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Hundreds</th>
+                                                <td>{{ stats.hundreds }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Fifties</th>
+                                                <td>{{ stats.fifties }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Fours</th>
+                                                <td>{{ stats.fours }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Sixes</th>
+                                                <td>{{ stats.sixes }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Bowling Stats (if applicable) -->
+                            {% if player.role in ['Bowler', 'All-rounder'] %}
+                            <div class="col-md-6 mb-4">
+                                <h4>Bowling Stats</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <tbody>
+                                            <tr>
+                                                <th>Bowling Style</th>
+                                                <td>{{ player.bowling_style or 'N/A' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Wickets</th>
+                                                <td>{{ stats.wickets_taken }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Economy Rate</th>
+                                                <td>{{ stats.economy_rate }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Bowling Average</th>
+                                                <td>{{ stats.bowling_average }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Best Bowling</th>
+                                                <td>{{ stats.best_bowling_figures or 'N/A' }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            No statistics available for this player.
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+            
+            <!-- Performance Charts (if available) -->
+            {% if stats and stats.matches_played > 0 %}
+            <section class="mb-5">
+                <div class="card">
+                    <div class="card-header" style="background-color: {{ player.team.primary_color or '#343a40' }}; color: {{ player.team.secondary_color or 'white' }};">
+                        <h3 class="mb-0">Performance Comparison</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            Performance charts and visualizations would be shown here, including batting stats, bowling stats, and career progression.
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+            
+            <!-- Player Contract Information (if available) -->
+            {% if contract %}
+            <section id="player-contract" class="mb-5">
+                <div class="card">
+                    <div class="card-header" style="background-color: {{ player.team.primary_color or '#343a40' }}; color: {{ player.team.secondary_color or 'white' }};">
+                        <h3 class="mb-0">Contract Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-striped">
+                                    <tbody>
+                                        <tr>
+                                            <th>Base Price</th>
+                                            <td>₹{{ contract.base_price|int }} Crores</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Final Bid</th>
+                                            <td>₹{{ contract.final_bid|int }} Crores</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Contract Period</th>
+                                            <td>{{ contract.contract_start_date.strftime('%b %Y') }} - {{ contract.contract_end_date.strftime('%b %Y') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Retention Type</th>
+                                            <td>{{ contract.retention_type }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 bg-light">
+                                    <div class="card-body">
+                                        <h5>About Player Contracts</h5>
+                                        <p>In the IPL, players are acquired through an auction process where teams bid for players. The final bid amount represents the player's salary for each season within the contract period.</p>
+                                        <p><strong>Retention Types:</strong></p>
+                                        <ul>
+                                            <li><strong>New signing:</strong> Player acquired in the auction</li>
+                                            <li><strong>Retained:</strong> Player retained by the team before the auction</li>
+                                            <li><strong>RTM (Right To Match):</strong> Team matched the highest bid in the auction</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Player Profile Information -->
+            <section id="player-info" class="mb-4">
+                <div class="card">
+                    <div class="card-header" style="background-color: {{ player.team.primary_color or '#343a40' }}; color: {{ player.team.secondary_color or 'white' }};">
+                        <h3 class="mb-0">Player Profile</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th><i class="fas fa-user-alt"></i> Full Name</th>
+                                    <td>{{ player.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-flag"></i> Nationality</th>
+                                    <td>{{ player.country }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-calendar-alt"></i> Date of Birth</th>
+                                    <td>{{ player.date_of_birth.strftime('%d %B, %Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-ruler-vertical"></i> Role</th>
+                                    <td>{{ player.role }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-baseball-ball"></i> Batting Style</th>
+                                    <td>{{ player.batting_style or 'N/A' }}</td>
+                                </tr>
+                                {% if player.bowling_style %}
+                                <tr>
+                                    <th><i class="fas fa-bowling-ball"></i> Bowling Style</th>
+                                    <td>{{ player.bowling_style }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <th><i class="fas fa-tshirt"></i> Jersey Number</th>
+                                    <td>{{ player.jersey_number or 'N/A' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Player's Team Information -->
+            <section class="mb-4">
+                <div class="card">
+                    <div class="card-header" style="background-color: {{ player.team.primary_color or '#343a40' }}; color: {{ player.team.secondary_color or 'white' }};">
+                        <h3 class="mb-0">Team Information</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="{{ player.team.logo_url or 'https://via.placeholder.com/150?text=' + player.team.short_name }}" 
+                             alt="{{ player.team.name }}" class="img-fluid mb-3" style="max-height: 100px;">
+                        <h4>{{ player.team.name }}</h4>
+                        <p class="mb-1">
+                            <i class="fas fa-map-marker-alt"></i> {{ player.team.city }}
+                        </p>
+                        <p class="mb-1">
+                            <i class="fas fa-home"></i> {{ player.team.home_ground }}
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-trophy"></i> Championships: {{ player.team.championships_won }}
+                        </p>
+                        <div class="mt-3">
+                            <a href="{{ url_for('team_details', team_id=player.team_id) }}" class="btn btn-primary">
+                                <i class="fas fa-info-circle"></i> View Team
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Other Related Information -->
+            <section class="mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">Career Highlights</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-center mb-3">
+                            <div class="text-center mx-2">
+                                <div class="display-6">{{ stats.matches_played if stats else 0 }}</div>
+                                <small class="text-muted">Matches</small>
+                            </div>
+                            <div class="text-center mx-2">
+                                <div class="display-6">{{ stats.runs_scored if stats else 0 }}</div>
+                                <small class="text-muted">Runs</small>
+                            </div>
+                            <div class="text-center mx-2">
+                                <div class="display-6">{{ stats.wickets_taken if stats else 0 }}</div>
+                                <small class="text-muted">Wickets</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h5>Notable Achievements</h5>
+                            <ul class="list-group list-group-flush">
+                                {% if orange_cap %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-trophy text-warning"></i> Orange Cap Holder (Rank {{ orange_cap.rank }})
+                                </li>
+                                {% endif %}
+                                
+                                {% if purple_cap %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-trophy text-purple"></i> Purple Cap Holder (Rank {{ purple_cap.rank }})
+                                </li>
+                                {% endif %}
+                                
+                                {% if stats and stats.highest_score > 50 %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-award"></i> Highest Score: {{ stats.highest_score }}
+                                </li>
+                                {% endif %}
+                                
+                                {% if stats and stats.best_bowling_figures %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-award"></i> Best Bowling: {{ stats.best_bowling_figures }}
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
